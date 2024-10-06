@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CrawlingService {
@@ -29,11 +31,15 @@ public class CrawlingService {
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4515.107 Safari/537.36");
 
         ChromeOptions options2 = new ChromeOptions();
+//        options2.addArguments("--headless");
         options2.addArguments("--disable-gpu");
         options2.addArguments("--no-sandbox");
         options2.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36");
+        options2.addArguments("--disable-javascript");
 
         WebDriver driver = new ChromeDriver(options);
+
+
 
         try {
             // Gmarket Superdeal 페이지로 이동
@@ -75,47 +81,84 @@ public class CrawlingService {
                 Thread.sleep(ThreadLocalRandom.current().nextInt(1000, 3000));
 
                 WebDriver driver2 = new ChromeDriver(options2);
+                WebDriverWait wait2 = new WebDriverWait(driver2, Duration.ofSeconds(20));
 
 
 
                 // 해당 상품 상세 페이지로 이동
-                driver2.get(productUrl);
 
-                // '교환/반품' 탭을 찾고 클릭
-                try {
-                    WebElement exchangeTab = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='#vip-tab_exchange']")));
-                    exchangeTab.click();
-                    System.out.println("Clicked '교환/반품' tab.");
+                int retryCount = 3;
+                boolean success = false;
+                while (retryCount > 0 && !success) {
+// '교환/반품' 탭을 찾고 클릭
+                    try {
 
-                    // 교환/반품 정보를 포함한 섹션 찾기
-                    WebElement exchangeGuideBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".box__exchange-guide")));
-                    List<WebElement> exchangeSections = exchangeGuideBox.findElements(By.cssSelector(".box__inner"));
+                        driver2.get(productUrl);
 
-                    // 교환/반품 정보가 있는 섹션 추출
-                    if (exchangeSections.size() >= 5) {
-                        WebElement sellerInfoSection = exchangeSections.get(4);
+//                    WebElement exchangeTab = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='#vip-tab_exchange']")));
+//                    exchangeTab.click();
+//                    System.out.println("Clicked '교환/반품' tab.");
+                        try {
+                            // 팝업을 확인하고 닫기
+                            WebDriverWait alertWait = new WebDriverWait(driver2, Duration.ofSeconds(5));
+                            Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
+                            System.out.println("Alert detected with message: " + alert.getText());
+                            alert.accept();  // 알림 창을 닫음
+                            System.out.println("Alert closed.");
+                        } catch (TimeoutException e) {
+                            System.out.println("No alert found.");
+                        }
 
-                        // 판매자 정보 추출
-                        String sellerName = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'상호명')]//span")).getText();
-                        String representative = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'대표자')]//span")).getText();
-                        String contact = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'연락처')]//span")).getText();
-                        String businessNumber = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'사업자 등록번호')]//span")).getText();
-                        String salesNumber = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'통신판매업자번호')]//span")).getText();
-                        String location = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'사업장소재지')]//span")).getText();
-                        String email = sellerInfoSection.findElement(By.xpath("//li[span[contains(text(),'E-mail')]//span")).getText();
+                        // 교환/반품 정보를 포함한 섹션 찾기
+//                        WebElement exchangeGuideBox = wait2.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".box__exchange-guide")));
+                        List<WebElement> exchangeSections = driver2.findElements(By.cssSelector(".box__exchange-guide>div"));
+                        System.out.println("box__exchange-guide found");
 
-                        // SellerInfo 객체 생성 및 리스트에 추가
-                        SellerInfo sellerInfo = new SellerInfo(sellerName, businessNumber, contact, representative, location, email);
-                        sellerList.add(sellerInfo);
 
-                        System.out.println("Seller info added: " + sellerInfo.toString());
+                        // 교환/반품 정보가 있는 섹션 추출
+                        if (exchangeSections.size() >= 5) {
+                            WebElement sellerInfoSection = exchangeSections.get(4);
+                            System.out.println(sellerInfoSection.getAttribute("innerHTML"));
+
+                            // sellerInfoSection의 innerHTML을 추출
+                            String innerHTML = sellerInfoSection.getAttribute("innerHTML");
+
+                            // 판매자 정보 추출
+                            String sellerName = extractDataFromHtml(innerHTML, "상호명");
+                            String representative = extractDataFromHtml(innerHTML, "대표자");
+                            String contact = extractDataFromHtml(innerHTML, "연락처");
+                            String businessNumber = extractDataFromHtml(innerHTML, "사업자 등록번호");
+                            String salesNumber = extractDataFromHtml(innerHTML, "통신판매업자번호");
+                            String location = extractDataFromHtml(innerHTML, "사업장소재지");
+                            String email = extractDataFromHtml(innerHTML, "E-mail");
+
+
+
+                            System.out.println("sellerName: " + sellerName);
+
+                            // SellerInfo 객체 생성 및 리스트에 추가
+                            SellerInfo sellerInfo = new SellerInfo(sellerName, businessNumber, contact, representative, location, email);
+                            sellerList.add(sellerInfo);
+
+                            System.out.println("Seller info added: " + sellerInfo.toString());
+                            success = true;
+                        }
+                    } catch (TimeoutException | StaleElementReferenceException e) {
+                        retryCount--;
+                        if(retryCount == 0) {
+                            System.out.println("로딩 실패. 재시도 횟수 초과");
+                        }
+                        else{
+                            System.out.println("오류 발생, 재시도 중" + retryCount);
+                            continue;
+                        }
+
                     }
-                } catch (TimeoutException te) {
-                    System.out.println("교환/반품 정보를 찾지 못했습니다.");
-                }
-                finally{
                     driver2.quit();
+
                 }
+
+
             }
 
         } catch (Exception e) {
@@ -127,5 +170,19 @@ public class CrawlingService {
 
         System.out.println("Crawling completed. Total sellers found: " + sellerList.size());
         return sellerList;
+    }
+    private String extractDataFromHtml(String html, String key) {
+        // key에 해당하는 데이터를 추출하는 정규 표현식
+        String regex = key + "\\s*:\\s*<span[^>]*>([^<]*)</span>";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(html);
+
+        // 일치하는 데이터가 있으면 반환
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+
+        // 일치하는 데이터가 없으면 빈 문자열 반환
+        return "";
     }
 }

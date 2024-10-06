@@ -14,4 +14,9 @@ public class SellerInfo {
     private String representative;
     private String location;
     private String email;
+
+    @Override
+    public String toString() {
+        return "SellerInfo [sellerName=" + sellerName + ", businessId=" + businessId + ", contactInfo=" + contactInfo + ", representative=" + representative + ", location=" + location + ", email=" + email + "]";
+    }
 }
