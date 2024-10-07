@@ -38,15 +38,16 @@ public class ExcelService {
             int rowIdx = 1;
             for (SellerInfo seller : sellerInfoList) {
                 // 디버깅을 위한 로그 출력
-                System.out.println("Adding seller to Excel: " + seller.getSellerName() + ", " + seller.getBusinessId());
+                System.out.println(
+                    "Adding seller to Excel: " + seller.sellerName() + ", " + seller.businessId());
 
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(seller.getSellerName());
-                row.createCell(1).setCellValue(seller.getBusinessId());
-                row.createCell(2).setCellValue(seller.getContactInfo());
-                row.createCell(3).setCellValue(seller.getRepresentative());
-                row.createCell(4).setCellValue(seller.getLocation());
-                row.createCell(5).setCellValue(seller.getEmail());
+                row.createCell(0).setCellValue(seller.sellerName());
+                row.createCell(1).setCellValue(seller.businessId());
+                row.createCell(2).setCellValue(seller.contactInfo());
+                row.createCell(3).setCellValue(seller.representative());
+                row.createCell(4).setCellValue(seller.location());
+                row.createCell(5).setCellValue(seller.email());
             }
 
             // 엑셀 파일을 ByteArray로 변환

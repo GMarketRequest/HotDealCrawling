@@ -137,7 +137,15 @@ public class CrawlingService {
                             System.out.println("sellerName: " + sellerName);
 
                             // SellerInfo 객체 생성 및 리스트에 추가
-                            SellerInfo sellerInfo = new SellerInfo(sellerName, businessNumber, contact, representative, location, email);
+                            SellerInfo sellerInfo = SellerInfo.builder()
+                                .sellerName(sellerName)
+                                .businessId(businessNumber)
+                                .representative(representative)
+                                .contactInfo(contact)
+                                .location(location)
+                                .email(email)
+                                .build();
+//                            SellerInfo sellerInfo = new SellerInfo(sellerName, businessNumber, contact, representative, location, email);
                             sellerList.add(sellerInfo);
 
                             System.out.println("Seller info added: " + sellerInfo.toString());
