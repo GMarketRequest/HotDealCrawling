@@ -21,11 +21,11 @@ public class CrawlingExceptionHandler {
     return new ResponseEntity<>("Element not found during crawling", HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler(TimeoutException.class)
-  public ResponseEntity<String> handleTimeoutException(TimeoutException ex) {
-    log.error("TimeoutException occurred: {}", ex.getMessage());
-    return new ResponseEntity<>("Request timed out during crawling", HttpStatus.REQUEST_TIMEOUT);
-  }
+//  @ExceptionHandler(TimeoutException.class)
+//  public ResponseEntity<String> handleTimeoutException(TimeoutException ex) {
+//    log.error("TimeoutException occurred: {}", ex.getMessage());
+//    return new ResponseEntity<>("Request timed out during crawling", HttpStatus.REQUEST_TIMEOUT);
+//  }
 
   @ExceptionHandler(StaleElementReferenceException.class)
   public ResponseEntity<String> handleStaleElementReferenceException(

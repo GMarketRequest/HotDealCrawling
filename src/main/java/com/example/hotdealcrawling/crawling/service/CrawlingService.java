@@ -86,6 +86,17 @@ public class CrawlingService {
             while (retryCount > 0 && !success) {
                 driver2.get(productUrl);
 
+                try {
+                    WebDriverWait alertWait = new WebDriverWait(driver2, Duration.ofSeconds(5));
+                    Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
+                    log.info("Alert detected with message: {}", alert.getText());
+                    alert.accept();  // 알림 창을 닫음
+                    log.info("Alert closed.");
+                } catch (TimeoutException e) {
+                    log.info("No alert found.");
+                }
+
+
                 // 교환/반품 정보가 있는 섹션 추출
                 List<WebElement> exchangeSections = driver2.findElements(
                     By.cssSelector(".box__exchange-guide>div"));
