@@ -11,13 +11,14 @@ public record SellerInfo(
     String location,
     String email
 ) {
-    @Override
-    public String toString() {
-        return "SellerInfo [sellerName=" + sellerName +
-            ", businessId=" + businessId +
-            ", contactInfo=" + contactInfo +
-            ", representative=" + representative +
-            ", location=" + location +
-            ", email=" + email + "]";
-    }
+
+  @Override
+  public String toString() {
+    return "SellerInfo [sellerName=" + sellerName +
+        ", businessId=" + businessId +
+        ", contactInfo=" + contactInfo +
+        ", representative=" + representative +
+        ", location=" + location +
+        ", email=" + email + "]";
+  }
 }
