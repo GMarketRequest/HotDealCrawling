@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -84,9 +83,6 @@ public class CrawlingService {
       String productUrl = productLink.getAttribute("href");
       log.info("Navigating to product page: {}", productUrl);
 
-      // 요청 간에 랜덤 딜레이 추가 (봇으로 감지되지 않도록)
-      Thread.sleep(ThreadLocalRandom.current().nextInt(1000, 3000));
-
       WebDriver driver2 = new ChromeDriver(options2);
       WebDriverWait wait2 = new WebDriverWait(driver2, Duration.ofSeconds(20));
 
@@ -96,7 +92,7 @@ public class CrawlingService {
         driver2.get(productUrl);
 
         try {
-          WebDriverWait alertWait = new WebDriverWait(driver2, Duration.ofSeconds(5));
+          WebDriverWait alertWait = new WebDriverWait(driver2, Duration.ofSeconds(3));
           Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
           log.info("Alert detected with message: {}", alert.getText());
           alert.accept();  // 알림 창을 닫음
@@ -133,6 +129,7 @@ public class CrawlingService {
               .contactInfo(contact)
               .location(location)
               .email(email)
+              .businessNumber(salesNumber)
               .build();
           sellerList.add(sellerInfo);
 

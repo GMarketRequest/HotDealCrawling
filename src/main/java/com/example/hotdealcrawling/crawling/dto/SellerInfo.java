@@ -9,7 +9,8 @@ public record SellerInfo(
     String contactInfo,
     String representative,
     String location,
-    String email
+    String email,
+    String businessNumber
 ) {
 
   @Override
