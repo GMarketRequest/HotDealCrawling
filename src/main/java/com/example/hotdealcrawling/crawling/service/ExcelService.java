@@ -18,8 +18,7 @@ public class ExcelService {
     public ByteArrayInputStream createExcel(List<SellerInfo> sellerInfoList) {
         // 리스트가 비어 있는지 확인
         if (sellerInfoList == null || sellerInfoList.isEmpty()) {
-            System.out.println("SellerInfo list is empty, cannot create Excel.");
-            throw new RuntimeException("SellerInfo list is empty, cannot create Excel.");
+            throw new IllegalArgumentException("SellerInfo list is empty, cannot create Excel.");
         }
 
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -37,10 +36,6 @@ public class ExcelService {
             // 데이터 기록
             int rowIdx = 1;
             for (SellerInfo seller : sellerInfoList) {
-                // 디버깅을 위한 로그 출력
-                System.out.println(
-                    "Adding seller to Excel: " + seller.sellerName() + ", " + seller.businessId());
-
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(seller.sellerName());
                 row.createCell(1).setCellValue(seller.businessId());
@@ -55,7 +50,7 @@ public class ExcelService {
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException("Fail to create Excel file: " + e.getMessage());
+            throw new IllegalStateException("Fail to create Excel file: " + e.getMessage(), e);
         }
     }
 }
