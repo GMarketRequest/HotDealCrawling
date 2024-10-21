@@ -68,19 +68,9 @@ public class ExcelService {
           .toList();
 
       log.info(String.valueOf(recordComponents.length));
-      
+
       // 헤더 행 생성
       Row header = sheet.createRow(0);
-//      header.createCell(0).setCellValue("순번");
-//      header.createCell(1).setCellValue("상호명");
-//      header.createCell(2).setCellValue("사업자 등록번호");
-//      header.createCell(3).setCellValue("연락처");
-//      header.createCell(4).setCellValue("대표자");
-//      header.createCell(5).setCellValue("사업장소재지");
-//      header.createCell(6).setCellValue("E-mail");
-//      header.createCell(7).setCellValue("통신판매업자번호");
-//      header.createCell(8).setCellValue("기준일");
-
       for (int i = 0; i < excelComponents.size(); i++) {
         RecordComponent component = excelComponents.get(i);
         ExcelColumn excelColumn = component.getAnnotation(ExcelColumn.class);
@@ -88,31 +78,6 @@ public class ExcelService {
         cell.setCellValue(excelColumn.headerName());
         cell.setCellStyle(headerStyle);
       }
-
-//      // 헤더 스타일 적용
-//      for (int i = 0; i <= 8; i++) {
-//        Cell cell = header.getCell(i);
-//        if (cell == null) {
-//          cell = header.createCell(i);
-//        }
-//        cell.setCellStyle(headerStyle);
-//      }
-
-      // 데이터 기록
-//      int rowIdx = 1;
-//      int seqNum = 1;  // 순번
-//      for (SellerInfo seller : sellerInfoList) {
-//        Row row = sheet.createRow(rowIdx++);
-//        row.createCell(0).setCellValue(seqNum++);  // 순번
-//        row.createCell(1).setCellValue(seller.sellerName());
-//        row.createCell(2).setCellValue(seller.businessId());
-//        row.createCell(3).setCellValue(seller.contactInfo());
-//        row.createCell(4).setCellValue(seller.representative());
-//        row.createCell(5).setCellValue(seller.location());
-//        row.createCell(6).setCellValue(seller.email());
-//        row.createCell(7).setCellValue(seller.businessNumber());
-//        row.createCell(8).setCellValue(currentDate);  // 기준일
-//      }
 
       // 데이터 기록
       int rowIdx = 1;
